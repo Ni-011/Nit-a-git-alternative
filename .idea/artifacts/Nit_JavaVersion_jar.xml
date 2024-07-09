@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Nit_JavaVersion:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Nit_JavaVersion_jar</output-path>
+    <root id="archive" name="Nit_JavaVersion.jar">
+      <element id="module-output" name="Nit_JavaVersion" />
+    </root>
+  </artifact>
+</component>
