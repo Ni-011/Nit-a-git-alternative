@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
@@ -6,6 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -112,6 +115,44 @@ public class Nit {
             System.out.println("Staging area updated successfully");
         } catch (IOException e) {
             System.out.println("Cannot read staging area Index File " + e);
+        }
+    }
+
+    public String getCurrentHeadState () {
+        try {
+            return Files.readString(this.HeadFilePath, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            System.out.println("Could not read file " + e);
+            return null;
+        }
+    }
+
+    public void commit (String message) {
+        try {
+            // read the data in index file (staging area)
+            String indexDataJson = Files.readString(this.IndexPath);
+            List<FileEntry> stagingArray = gson.fromJson(indexDataJson, new TypeToken<List<FileEntry>>(){}.getType());
+            // get the previous parent commit from head
+            String lastCommit = this.getCurrentHeadState();
+            // commit data
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+            Date currentTime = new Date();
+            CommitData commitData = new CommitData(formatter.format(currentTime), message, this.IndexPath, lastCommit);
+            // convert commit data into string then hash it
+            String commitDataJson = gson.toJson(commitData);
+            String commitDataHash = this.makeHash(commitDataJson);
+            // create the commits folder inside objects with commit data in it
+            Path commitsDirPath = this.ObjectsDirPath.resolve("commits");
+            Files.createDirectories(commitsDirPath);
+            Path commitFilePath = commitsDirPath.resolve(commitDataHash);
+            Files.writeString(commitFilePath, commitDataJson);
+            // update Head file with new commit's hash and clear staging area
+            Files.writeString(this.HeadFilePath, commitDataHash);
+            Files.writeString(this.IndexPath, "[]");
+            System.out.println("Successfully committed, message: " + message);
+            System.out.println("Working Directory Clean");
+        } catch (IOException e) {
+            System.out.println("Could not read file " + e);
         }
     }
 }
