@@ -1,10 +1,16 @@
+import com.google.gson.annotations.Expose;
+
 import java.nio.file.Path;
 import java.util.Date;
 
 public class CommitData {
+    @Expose
     private String timeStamp;
+    @Expose
     private String message;
+    @Expose
     private Path files;
+    @Expose
     private String parentCommit;
 
     public CommitData (String timeStamp, String message, Path files, String parentCommit) {
