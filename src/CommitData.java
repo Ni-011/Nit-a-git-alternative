@@ -8,7 +8,6 @@ public class CommitData {
     private String timeStamp;
     @Expose
     private String message;
-    @Expose
     private Path files;
     @Expose
     private String parentCommit;

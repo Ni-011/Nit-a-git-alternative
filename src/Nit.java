@@ -155,4 +155,29 @@ public class Nit {
             System.out.println("Could not read file " + e);
         }
     }
+
+    public void log () {
+        String currentCommitHash = this.getCurrentHeadState();
+        while (currentCommitHash != null && !currentCommitHash.isEmpty()) {
+            Path currentCommitDataFilePath = this.ObjectsDirPath.resolve("commits").resolve(currentCommitHash);
+            try {
+                String currentCommitDataString = Files.readString(currentCommitDataFilePath, StandardCharsets.UTF_8);
+                CommitData currentCommitData = gson.fromJson(currentCommitDataString, new TypeToken<CommitData>(){}.getType());
+                System.out.println("Attempting to read: " + currentCommitDataFilePath.toAbsolutePath());
+                System.out.println("File exists: " + Files.exists(currentCommitDataFilePath));
+                System.out.println("File is readable: " + Files.isReadable(currentCommitDataFilePath));
+
+                // display info of the current commit
+                System.out.println("commit " + currentCommitHash);
+                System.out.println("Date: " + currentCommitData.getTimeStamp());
+                System.out.println();
+                System.out.println(currentCommitData.getMessage());
+                System.out.println();
+                // change the currentcommit to parent commit
+                currentCommitHash = currentCommitData.getParentCommit();
+            } catch (IOException e) {
+                System.out.println("cannot read commitDataFile " + e);
+            }
+        }
+    }
 }
