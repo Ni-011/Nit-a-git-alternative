@@ -163,9 +163,6 @@ public class Nit {
             try {
                 String currentCommitDataString = Files.readString(currentCommitDataFilePath, StandardCharsets.UTF_8);
                 CommitData currentCommitData = gson.fromJson(currentCommitDataString, new TypeToken<CommitData>(){}.getType());
-                System.out.println("Attempting to read: " + currentCommitDataFilePath.toAbsolutePath());
-                System.out.println("File exists: " + Files.exists(currentCommitDataFilePath));
-                System.out.println("File is readable: " + Files.isReadable(currentCommitDataFilePath));
 
                 // display info of the current commit
                 System.out.println("commit " + currentCommitHash);
