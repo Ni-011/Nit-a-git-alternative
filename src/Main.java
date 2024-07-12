@@ -36,8 +36,7 @@ public class Main {
             throw new RuntimeException(e);
         }
 
-        nit.commit("finally fixed all the bugs");
-
+        nit.commit("latest commmit");
         nit.log();
     }
 }

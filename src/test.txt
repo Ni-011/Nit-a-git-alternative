@@ -1,8 +1,6 @@
 yoooooo, this is a file for testig to check if this file can be added
-2nd commit changes
-some more changes
+change 1
 new change
-another change
-new change
-gg
-a new change
+another new change
+a new one
+gggggg

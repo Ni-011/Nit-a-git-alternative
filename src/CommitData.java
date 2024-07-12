@@ -2,17 +2,19 @@ import com.google.gson.annotations.Expose;
 
 import java.nio.file.Path;
 import java.util.Date;
+import java.util.List;
 
 public class CommitData {
     @Expose
     private String timeStamp;
     @Expose
     private String message;
-    private Path files;
+    @Expose
+    private List<FileEntry> files;
     @Expose
     private String parentCommit;
 
-    public CommitData (String timeStamp, String message, Path files, String parentCommit) {
+    public CommitData (String timeStamp, String message, List<FileEntry> files, String parentCommit) {
         this.timeStamp = timeStamp;
         this.message = message;
         this.files = files;
@@ -35,11 +37,11 @@ public class CommitData {
         this.message = message;
     }
 
-    public Path getFiles() {
+    public List<FileEntry> getFiles() {
         return files;
     }
 
-    public void setFiles(Path files) {
+    public void setFiles(List<FileEntry> files) {
         this.files = files;
     }
 

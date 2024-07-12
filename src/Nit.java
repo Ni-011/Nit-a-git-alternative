@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -28,9 +29,11 @@ public class Nit {
         this.ObjectsDirPath = this.ParentDirPath.resolve("Objects");
         this.HeadFilePath = this.ParentDirPath.resolve("Head");
         this.IndexPath= this.ParentDirPath.resolve("Index");
+        Type fileEntryListType = new TypeToken<List<FileEntry>>(){}.getType();
         this.gson = new GsonBuilder().setPrettyPrinting()
                 .excludeFieldsWithoutExposeAnnotation()
-                .create();;
+                .registerTypeAdapter(fileEntryListType, new FileEntryListTypeAdapter())
+                .create();
     }
 
     // overloading constructor to run constructor with default param
@@ -130,14 +133,14 @@ public class Nit {
     public void commit (String message) {
         try {
             // read the data in index file (staging area)
-            String indexDataJson = Files.readString(this.IndexPath);
+            String indexDataJson = Files.readString(this.IndexPath, StandardCharsets.UTF_8);
             List<FileEntry> stagingArray = gson.fromJson(indexDataJson, new TypeToken<List<FileEntry>>(){}.getType());
             // get the previous parent commit from head
             String lastCommit = this.getCurrentHeadState();
             // commit data
             SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             Date currentTime = new Date();
-            CommitData commitData = new CommitData(formatter.format(currentTime), message, this.IndexPath, lastCommit);
+            CommitData commitData = new CommitData(formatter.format(currentTime), message, stagingArray, lastCommit);
             // convert commit data into string then hash it
             String commitDataJson = gson.toJson(commitData);
             String commitDataHash = this.makeHash(commitDataJson);
@@ -175,6 +178,52 @@ public class Nit {
             } catch (IOException e) {
                 System.out.println("cannot read commitDataFile " + e);
             }
+        }
+    }
+
+    public void displayCommitChanges(String commitHash) throws IOException {
+        CommitData commitData = gson.fromJson(getCommitDataJson(commitHash), new TypeToken<CommitData>(){}.getType());
+        System.out.println("Changes in the Latest commit: ");
+
+        for (FileEntry file : commitData.getFiles()) {
+            System.out.println("File: " + file.getFilePath());
+            String fileData = this.getFileData(file.getFileHash());
+            System.out.println();
+
+            if (commitData.getParentCommit() != null) {
+                String parentCommitDataJson = this.getCommitDataJson(commitData.getParentCommit());
+                CommitData parentCommitData = gson.fromJson(parentCommitDataJson, new TypeToken<CommitData>(){}.getType());
+                String parentFileData = this.getParentFileDataJson(parentCommitData, Paths.get(file.getFilePath()));
+                FileLineDiffAlgo.lineDiff(fileData, parentFileData);
+            }
+        }
+    }
+
+    public String getParentFileDataJson (CommitData parentCommitData, Path filePath) {
+        // find if a file in parentcommitData matches filepath and gets its file content from parent commit and return content
+        for (FileEntry file : parentCommitData.getFiles()) {
+            if (Paths.get(file.getFilePath()) == filePath) {
+                return this.getFileData(file.getFileHash());
+            }
+        }
+        return null;
+    }
+
+    public String getCommitDataJson (String commitHash) {
+        Path commitPath = this.ObjectsDirPath.resolve("commits").resolve(commitHash);
+        try {
+            return Files.readString(commitPath, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not read the file " + e);
+        }
+    }
+
+    public String getFileData (String fileHash) {
+        Path fileHashPath = this.ObjectsDirPath.resolve(fileHash.substring(0,2)).resolve(fileHash);
+        try {
+            return Files.readString(fileHashPath, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not read file " + e);
         }
     }
 }
