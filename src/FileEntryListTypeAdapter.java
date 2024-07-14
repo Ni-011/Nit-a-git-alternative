@@ -10,8 +10,8 @@ public class FileEntryListTypeAdapter implements JsonSerializer<List<FileEntry>>
         JsonArray array = new JsonArray();
         for (FileEntry entry : src) {
             JsonObject object = new JsonObject();
-            object.addProperty("path", entry.getFilePath());
-            object.addProperty("hash", entry.getFileHash());
+            object.addProperty("filePath", entry.getFilePath());
+            object.addProperty("fileHash", entry.getFileHash());
             array.add(object);
         }
         return array;
@@ -25,8 +25,8 @@ public class FileEntryListTypeAdapter implements JsonSerializer<List<FileEntry>>
             for (JsonElement element : array) {
                 if (element.isJsonObject()) {
                     JsonObject object = element.getAsJsonObject();
-                    String path = object.has("path") ? object.get("path").getAsString() : "";
-                    String hash = object.has("hash") ? object.get("hash").getAsString() : "";
+                    String path = object.has("filePath") ? object.get("filePath").getAsString() : "";
+                    String hash = object.has("fileHash") ? object.get("fileHash").getAsString() : "";
                     fileEntries.add(new FileEntry(path, hash));
                 }
             }

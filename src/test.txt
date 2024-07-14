@@ -1,6 +1,4 @@
 yoooooo, this is a file for testig to check if this file can be added
-change 1
-new change
-another new change
-a new one
-gggggg
+something
+making some changes
+new lines

@@ -24,19 +24,24 @@ public class Main {
         }*/
 
         Nit nit = new Nit();
+//        try {
+//            nit.init();
+//        } catch (IOException e) {
+//            System.out.println("The file already exists");
+//        }
+//
+//        try {
+//            nit.add("\\\\wsl$\\Ubuntu\\home\\ni\\projects\\Nit_JavaVersion\\src\\test.txt");
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//        nit.commit("new commmit");
+//        nit.log();
         try {
-            nit.init();
-        } catch (IOException e) {
-            System.out.println("The file already exists");
-        }
-
-        try {
-            nit.add("\\\\wsl$\\Ubuntu\\home\\ni\\projects\\Nit_JavaVersion\\src\\test.txt");
+            nit.displayCommitChanges("b6a61fce3c6585daec81ad933aef046c3f3007e4bf8316b87707b2a8ba5a6e3a");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        nit.commit("latest commmit");
-        nit.log();
     }
 }

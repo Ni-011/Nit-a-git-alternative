@@ -33,6 +33,7 @@ public class Nit {
         this.gson = new GsonBuilder().setPrettyPrinting()
                 .excludeFieldsWithoutExposeAnnotation()
                 .registerTypeAdapter(fileEntryListType, new FileEntryListTypeAdapter())
+                .serializeNulls()
                 .create();
     }
 
@@ -98,6 +99,7 @@ public class Nit {
             // Add file inside that sub folder
             Path fileToAddPathInObjectsSubDir = objectsSubDirPath.resolve(fileHash);
             Files.createFile(fileToAddPathInObjectsSubDir);
+            Files.writeString(fileToAddPathInObjectsSubDir, fileData);
             // updating the staging area in index file
             this.StagingArea(fileToAddPathInObjectsSubDir, fileHash);
             System.out.println("The file was successfully added");
@@ -135,6 +137,11 @@ public class Nit {
             // read the data in index file (staging area)
             String indexDataJson = Files.readString(this.IndexPath, StandardCharsets.UTF_8);
             List<FileEntry> stagingArray = gson.fromJson(indexDataJson, new TypeToken<List<FileEntry>>(){}.getType());
+
+            if (stagingArray == null || stagingArray.isEmpty()) {
+                System.out.println("Warning: Staging area is empty or failed to parse.");
+                return;
+            }
             // get the previous parent commit from head
             String lastCommit = this.getCurrentHeadState();
             // commit data
@@ -142,7 +149,8 @@ public class Nit {
             Date currentTime = new Date();
             CommitData commitData = new CommitData(formatter.format(currentTime), message, stagingArray, lastCommit);
             // convert commit data into string then hash it
-            String commitDataJson = gson.toJson(commitData);
+            String commitDataJson = gson.toJson(commitData, CommitData.class);
+            System.out.println("commit data: " + commitDataJson);
             String commitDataHash = this.makeHash(commitDataJson);
             // create the commits folder inside objects with commit data in it
             Path commitsDirPath = this.ObjectsDirPath.resolve("commits");
@@ -188,22 +196,34 @@ public class Nit {
         for (FileEntry file : commitData.getFiles()) {
             System.out.println("File: " + file.getFilePath());
             String fileData = this.getFileData(file.getFileHash());
-            System.out.println();
 
             if (commitData.getParentCommit() != null) {
                 String parentCommitDataJson = this.getCommitDataJson(commitData.getParentCommit());
                 CommitData parentCommitData = gson.fromJson(parentCommitDataJson, new TypeToken<CommitData>(){}.getType());
                 String parentFileData = this.getParentFileDataJson(parentCommitData, Paths.get(file.getFilePath()));
+                System.out.println("Parent file content: " + parentFileData);
+                if (parentFileData == null) {
+                    System.out.println("New file added");
+                    return;
+                }
                 FileLineDiffAlgo.lineDiff(fileData, parentFileData);
+            } else {
+                System.out.println("First Commit");
             }
         }
     }
 
     public String getParentFileDataJson (CommitData parentCommitData, Path filePath) {
+
         // find if a file in parentcommitData matches filepath and gets its file content from parent commit and return content
         for (FileEntry file : parentCommitData.getFiles()) {
-            if (Paths.get(file.getFilePath()) == filePath) {
+            System.out.println("filePathFound: " + Paths.get(file.getFilePath()).normalize());
+            System.out.println("filePathParam: " + filePath.normalize());
+            if (Paths.get(file.getFilePath()).normalize().equals(filePath.normalize())) {
+                System.out.println("File was found in parent commitc");
                 return this.getFileData(file.getFileHash());
+            } else {
+                System.out.println("File not found in parent commit");
             }
         }
         return null;
@@ -221,6 +241,9 @@ public class Nit {
     public String getFileData (String fileHash) {
         Path fileHashPath = this.ObjectsDirPath.resolve(fileHash.substring(0,2)).resolve(fileHash);
         try {
+            if (Files.readString(fileHashPath, StandardCharsets.UTF_8).isEmpty()) {
+                System.out.println("The file is empty");
+            }
             return Files.readString(fileHashPath, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException("Could not read file " + e);
