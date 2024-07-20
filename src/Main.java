@@ -36,10 +36,10 @@ public class Main {
 //            throw new RuntimeException(e);
 //        }
 //
-//        nit.commit("new commmit");
+//        nit.commit("latest commmit");
 //        nit.log();
         try {
-            nit.displayCommitChanges("b6a61fce3c6585daec81ad933aef046c3f3007e4bf8316b87707b2a8ba5a6e3a");
+            nit.displayCommitChanges("15084d11b7408cfced57d2152cf2b75df004258065c07184964334b6bd9d80d9");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

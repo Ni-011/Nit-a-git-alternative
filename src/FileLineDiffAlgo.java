@@ -5,7 +5,7 @@ import java.util.List;
 public class FileLineDiffAlgo {
     public static void lineDiff (String file1, String file2) {
         List<String> file1Lines = Arrays.asList(file1.split("\n"));
-        List<String> file2Lines = Arrays.asList(file1.split("\n"));
+        List<String> file2Lines = Arrays.asList(file2.split("\n"));
 
         // ANSI escape codes for colors
         final String ANSI_RESET = "\u001B[0m";
@@ -16,9 +16,9 @@ public class FileLineDiffAlgo {
         int file2LineCount = file2Lines.size();
 
         if (file1LineCount > file2LineCount) {
-            System.out.println("Lines added: " + (file1LineCount - file2LineCount));
+            System.out.println(ANSI_GREEN + "Lines added: " + (file1LineCount - file2LineCount));
         } else if (file2LineCount > file1LineCount) {
-            System.out.println("Lines removed: " + (file2LineCount - file1LineCount));
+            System.out.println(ANSI_RED + "Lines removed: " + (file2LineCount - file1LineCount));
         } else {
             System.out.println("No changes");
         }
@@ -38,10 +38,9 @@ public class FileLineDiffAlgo {
                 removedLines.add(line);
             }
         }
-
         // Print added lines
         if (!addedLines.isEmpty()) {
-            System.out.println("Added:");
+            System.out.println(ANSI_GREEN + "Added:");
             for (String line : addedLines) {
                 System.out.println(ANSI_GREEN + "+ " + line);
             }
@@ -50,7 +49,7 @@ public class FileLineDiffAlgo {
 
         // Print removed lines
         if (!removedLines.isEmpty()) {
-            System.out.println("Removed:");
+            System.out.println(ANSI_RED + "Removed:");
             for (String line : removedLines) {
                 System.out.println(ANSI_RED + "- " + line);
             }
