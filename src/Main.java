@@ -2,7 +2,7 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
-        /*if (args.length == 0){
+        if (args.length == 0){
             System.out.println("Usage: Nit <command>");
             return;
         }
@@ -19,29 +19,38 @@ public class Main {
                 }
                 break;
 
+            case "add":
+                if (args.length < 2) {
+                    System.out.println("Usage: add <file_path>, please enter the file name you want to add");
+                    return;
+                }
+                String filePath = args[1];
+                try {
+                    nit.add(filePath);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+
+            case "log":
+                nit.log();
+                break;
+
+            case "changes":
+                if (args.length < 2) {
+                    System.out.println("Usage: changes <commit Hash>, please enter the commit hash you wanna see changes of");
+                    return;
+                }
+                String commitHash = args[1];
+                try {
+                    nit.displayCommitChanges(commitHash);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+
             default:
                 System.out.println("unknown command " + command);
-        }*/
-
-        Nit nit = new Nit();
-//        try {
-//            nit.init();
-//        } catch (IOException e) {
-//            System.out.println("The file already exists");
-//        }
-//
-//        try {
-//            nit.add("\\\\wsl$\\Ubuntu\\home\\ni\\projects\\Nit_JavaVersion\\src\\test.txt");
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//        nit.commit("latest commmit");
-//        nit.log();
-        try {
-            nit.displayCommitChanges("15084d11b7408cfced57d2152cf2b75df004258065c07184964334b6bd9d80d9");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 }
