@@ -90,8 +90,10 @@ public class Nit {
             // read the file and hash its content
             String fileData = Files.readString(filePath, StandardCharsets.UTF_8);
             String fileHash = this.makeHash(fileData);
+            Path ObjectsSubDir = this.ObjectsDirPath.resolve(fileHash.substring(0,2));
+            Files.createFile(ObjectsSubDir);
             // Add file inside that sub folder
-            Path fileToAddPathInObjectsSubDir = this.ObjectsDirPath.resolve(fileHash);
+            Path fileToAddPathInObjectsSubDir = ObjectsSubDir.resolve(fileHash.substring(2));
             Files.createFile(fileToAddPathInObjectsSubDir);
             Files.writeString(fileToAddPathInObjectsSubDir, fileData);
             // updating the staging area in index file
@@ -108,7 +110,7 @@ public class Nit {
             String jsonInFile = Files.readString(this.IndexPath);
             List<FileEntry> StagingArray = gson.fromJson(jsonInFile, new TypeToken<List<FileEntry>>(){}.getType());
             // update the stagingArea with info about file and convert stagingarea back to json and add it back to StringFile
-            StagingArray.add(new FileEntry(addedFilePath.toString(), addedFileHash));
+            StagingArray.add(new FileEntry(addedFilePath.toString(), addedFileHash.substring(2)));
             String newJson = gson.toJson(StagingArray);
             Files.writeString(this.IndexPath, newJson);
             System.out.println("Staging area updated successfully");
@@ -145,7 +147,7 @@ public class Nit {
             // convert commit data into string then hash it
             String commitDataJson = gson.toJson(commitData, CommitData.class);
             String commitDataHash = this.makeHash(commitDataJson);
-            Path commitFilePath = this.ObjectsDirPath.resolve(commitDataHash);
+            Path commitFilePath = this.ObjectsDirPath.resolve("commits").resolve(commitDataHash);
             Files.writeString(commitFilePath, commitDataJson);
             // update Head file with new commit's hash and clear staging area
             Files.writeString(this.HeadFilePath, commitDataHash);
@@ -160,7 +162,7 @@ public class Nit {
     public void log () {
         String currentCommitHash = this.getCurrentHeadState();
         while (currentCommitHash != null && !currentCommitHash.isEmpty()) {
-            Path currentCommitDataFilePath = this.ObjectsDirPath.resolve(currentCommitHash);
+            Path currentCommitDataFilePath = this.ObjectsDirPath.resolve("commits").resolve(currentCommitHash);
             try {
                 String currentCommitDataString = Files.readString(currentCommitDataFilePath, StandardCharsets.UTF_8);
                 CommitData currentCommitData = gson.fromJson(currentCommitDataString, new TypeToken<CommitData>(){}.getType());
@@ -227,7 +229,7 @@ public class Nit {
     }
 
     public String getFileData (String fileHash) {
-        Path fileHashPath = this.ObjectsDirPath.resolve(fileHash);
+        Path fileHashPath = this.ObjectsDirPath.resolve(fileHash.substring(0,2)).resolve(fileHash);
         try {
             if (Files.readString(fileHashPath, StandardCharsets.UTF_8).isEmpty()) {
                 System.out.println("The file is empty");
