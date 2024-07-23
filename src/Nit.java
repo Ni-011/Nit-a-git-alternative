@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -85,7 +86,8 @@ public class Nit {
 
     // add the files
     public void add (String fileToAdd) throws IOException {
-        Path filePath = Paths.get(fileToAdd);
+        Path filePath = findFile(fileToAdd);
+        System.out.println("file: " + filePath);
         try {
             // read the file and hash its content
             String fileData = Files.readString(filePath, StandardCharsets.UTF_8);
@@ -102,6 +104,17 @@ public class Nit {
         } catch (IOException e) {
             throw new RuntimeException("Could not Read File" + e);
         }
+    }
+
+    public static Path findFile (String fileToFind) throws IOException {
+        // start a depth first search in paren dir to find the file
+        String parentDir = ".";
+        Path start = Paths.get(parentDir);
+            return Files.walk(start)
+                    .filter(file -> !file.toString().contains(File.separator + "out" + File.separator))
+                    .filter(file -> file.getFileName().toString().equals(fileToFind))
+                    .findFirst()
+                    .orElse(null);
     }
 
     public void StagingArea (Path addedFilePath, String addedFileHash) {
@@ -212,6 +225,7 @@ public class Nit {
 
         // find if a file in parentcommitData matches filepath and gets its file content from parent commit and return content
         for (FileEntry file : parentCommitData.getFiles()) {
+
             if (Paths.get(file.getFilePath()).normalize().equals(filePath.normalize())) {
                 return this.getFileData(file.getFileHash());
             } else {

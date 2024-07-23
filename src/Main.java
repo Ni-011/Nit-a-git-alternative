@@ -1,16 +1,22 @@
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
+    private static final String VERSION = "0.1.0";
+
+    public static void main(String[] args) throws IOException {
         if (args.length == 0){
-            System.out.println("Usage: Nit <command>");
+            printUsage();
             return;
         }
 
-        String command = args[0];
         Nit nit = new Nit();
-
+        String command = args[0];
         switch (command) {
+            case "version":
+                System.out.println(VERSION);
+
             case "init":
                 try {
                     nit.init();
@@ -25,11 +31,21 @@ public class Main {
                     return;
                 }
                 String filePath = args[1];
+                System.out.println(filePath);
                 try {
                     nit.add(filePath);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+                break;
+
+            case "commit":
+                if (args.length < 2) {
+                    System.out.println("Usage: commit <commit message>, Please enter the commit message");
+                    return;
+                }
+                String message = args[1];
+                nit.commit(message);
                 break;
 
             case "log":
@@ -52,5 +68,16 @@ public class Main {
             default:
                 System.out.println("unknown command " + command);
         }
+    }
+    private static void printUsage() {
+        System.out.println("Usage: nit <command> [<args>]");
+        System.out.println("Available commands:");
+        System.out.println("  init                Initialize a new Nit repository");
+        System.out.println("  add <file_path>     Add a file to the staging area");
+        System.out.println("  commit <message>    Commit staged changes");
+        System.out.println("  log                 Show commit log");
+        System.out.println("  changes <commit_hash> Show changes in a specific commit");
+        System.out.println("  help                Show this help message");
+        System.out.println("  version             Show Nit version");
     }
 }
