@@ -1,3 +1,6 @@
+## Overview
+Nit is a Git like file tracking version control system, it uses the same hash based file tracking system as git by creating a hidden Nit folder in the file tree to record all folders and files.
+
 ## Features
 
 `Nit init`
